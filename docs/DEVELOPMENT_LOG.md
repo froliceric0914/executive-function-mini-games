@@ -12,7 +12,8 @@
 - Updated progression to ask before increasing difficulty after three successful attempts at a span.
 - Added cache and IndexedDB service tests.
 - Added the persistence test suite to GitHub Actions CI before the production build.
-- Made the Pages workflow perform first-time GitHub Pages enablement automatically.
+- Documented the required one-time Pages enablement in repository settings.
 - Added a direct live-site link to each successful Pages workflow summary.
 - Updated CI and deployment to Node.js 24 with the Node 24-based checkout and setup actions.
+- Updated configure-pages and pnpm setup to their Node 24-based action releases.
 - Made span four require one successful attempt and reset digit progression when a session ends.
