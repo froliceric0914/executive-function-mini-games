@@ -14,3 +14,4 @@
 - Added the persistence test suite to GitHub Actions CI before the production build.
 - Made the Pages workflow perform first-time GitHub Pages enablement automatically.
 - Added a direct live-site link to each successful Pages workflow summary.
+- Updated CI and deployment to Node.js 24 with the Node 24-based checkout and setup actions.

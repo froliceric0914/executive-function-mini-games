@@ -4,7 +4,7 @@
 
 This project deploys to GitHub Pages automatically whenever a commit reaches
 the `main` branch. The workflow builds the Vite app and publishes the `dist`
-directory.
+directory. CI and deployment use Node.js 24 on GitHub-hosted runners.
 
 The public address is:
 
