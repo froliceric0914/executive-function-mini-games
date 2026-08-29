@@ -1,19 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { requiredSuccessesForSpan, SEQUENCE_TIMING } from './logic'
+import { displayDuration, PRESENTATION_TIMING, requiredSuccessesForSpan } from './logic'
 
 describe('Backward Digit Span progression', () => {
-  it('requires only one successful attempt at span four', () => {
+  it('requires one successful attempt before span five', () => {
+    expect(requiredSuccessesForSpan(3)).toBe(1)
     expect(requiredSuccessesForSpan(4)).toBe(1)
   })
 
-  it('keeps the standard rotation requirement at other spans', () => {
-    expect(requiredSuccessesForSpan(3)).toBe(3)
+  it('requires two successful attempts at even spans', () => {
+    expect(requiredSuccessesForSpan(6)).toBe(2)
+  })
+
+  it('requires three successful attempts at odd spans from five digits', () => {
     expect(requiredSuccessesForSpan(5)).toBe(3)
   })
 
-  it('keeps sequence presentation timing configurable', () => {
-    expect(SEQUENCE_TIMING.readyMs).toBeGreaterThan(0)
-    expect(SEQUENCE_TIMING.betweenDigitsMs).toBeGreaterThan(0)
-    expect(SEQUENCE_TIMING.fadeMs).toBeLessThan(SEQUENCE_TIMING.digitVisibleMs)
+  it('keeps full-sequence presentation timing configurable', () => {
+    expect(PRESENTATION_TIMING.minimumMs).toBeGreaterThan(0)
+    expect(PRESENTATION_TIMING.perDigitMs).toBeGreaterThan(0)
+    expect(displayDuration(5)).toBe(5 * PRESENTATION_TIMING.perDigitMs)
   })
 })

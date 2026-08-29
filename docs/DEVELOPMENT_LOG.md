@@ -18,5 +18,5 @@
 - Updated configure-pages and pnpm setup to their Node 24-based action releases.
 - Fixed the Pages build command so generated asset URLs include the repository base path, with a workflow regression check.
 - Prepared the interface for iPhone Safari with safe areas, dynamic viewport units, touch normalization, compact-height layouts, and mobile viewport metadata.
-- Reworked digit presentation into a calm one-at-a-time sequence with Ready/Your turn cues, configurable timing, neutral feedback, and reduced-motion support.
-- Made span four require one successful attempt and reset digit progression when a session ends.
+- Restored the original full-sequence presentation so all digits appear together before answer entry.
+- Set training to begin at three digits, requiring one success at spans three and four, then two successes at even spans and three at odd spans from five digits onward.
