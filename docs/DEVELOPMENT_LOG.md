@@ -12,3 +12,4 @@
 - Updated progression to ask before increasing difficulty after three successful attempts at a span.
 - Added cache and IndexedDB service tests.
 - Added the persistence test suite to GitHub Actions CI before the production build.
+- Made the Pages workflow perform first-time GitHub Pages enablement automatically.

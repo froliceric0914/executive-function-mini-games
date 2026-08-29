@@ -10,8 +10,8 @@ The public address is:
 
 `https://froliceric0914.github.io/executive-function-mini-games/`
 
-To enable it for the first time, open the repository's **Settings → Pages** and
-set **Build and deployment → Source** to **GitHub Actions**.
+The deployment workflow enables Pages with GitHub Actions as its source on the
+first run, so no one-time repository configuration is required.
 
 ## Access from China
 
