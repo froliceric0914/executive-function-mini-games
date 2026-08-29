@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import { NumberKeypad } from '../components/NumberKeypad'
 import type { TrialResult } from '../types/session'
 import type { GameProgress } from '../types/game'
-import { buildSession, createSequence, displayDuration, expectedAnswer, MISSES_BEFORE_LEVEL_CHOICE, requiredSuccessesForSpan, STARTING_SPAN } from '../games/BackwardDigitSpan/logic'
+import { buildSession, createSequence, expectedAnswer, MISSES_BEFORE_LEVEL_CHOICE, requiredSuccessesForSpan, SEQUENCE_TIMING, STARTING_SPAN } from '../games/BackwardDigitSpan/logic'
 import { gameStorageService } from '../services/gameStorageService'
 import '../styles/levelChoice.css'
 
 const GAME = 'backward-digit-span' as const
-type Phase = 'loading' | 'ready' | 'showing' | 'answering' | 'saving' | 'feedback' | 'success-choice' | 'miss-choice'
+type Phase = 'loading' | 'ready' | 'ready-cue' | 'showing' | 'answer-cue' | 'answering' | 'saving' | 'feedback' | 'success-choice' | 'miss-choice'
 
 export function Training({ onExit }: { onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>('loading')
   const [span, setSpan] = useState(STARTING_SPAN)
   const [sequence, setSequence] = useState<number[]>([])
   const [answer, setAnswer] = useState('')
+  const [digitIndex, setDigitIndex] = useState(0)
+  const [digitVisible, setDigitVisible] = useState(false)
   const [trials, setTrials] = useState<TrialResult[]>([])
   const [lastCorrect, setLastCorrect] = useState(false)
   const [successfulAttemptsAtSpan, setSuccessfulAttemptsAtSpan] = useState(0)
@@ -36,13 +38,45 @@ export function Training({ onExit }: { onExit: () => void }) {
   }, [])
 
   useEffect(() => {
-    if (phase !== 'showing') return
-    const timer = window.setTimeout(() => { answerStartedAt.current = performance.now(); setPhase('answering') }, displayDuration(span))
+    if (phase !== 'ready-cue') return
+    const timer = window.setTimeout(() => {
+      setDigitIndex(0)
+      setDigitVisible(true)
+      setPhase('showing')
+    }, SEQUENCE_TIMING.readyMs)
     return () => window.clearTimeout(timer)
-  }, [phase, span, sequence])
+  }, [phase])
+
+  useEffect(() => {
+    if (phase !== 'showing') return
+    const isLastDigit = digitIndex === sequence.length - 1
+    const delay = digitVisible
+      ? SEQUENCE_TIMING.digitVisibleMs
+      : SEQUENCE_TIMING.fadeMs + (isLastDigit ? 0 : SEQUENCE_TIMING.betweenDigitsMs)
+    const timer = window.setTimeout(() => {
+      if (digitVisible) {
+        setDigitVisible(false)
+      } else if (isLastDigit) {
+        setPhase('answer-cue')
+      } else {
+        setDigitIndex((index) => index + 1)
+        setDigitVisible(true)
+      }
+    }, delay)
+    return () => window.clearTimeout(timer)
+  }, [digitIndex, digitVisible, phase, sequence.length])
+
+  useEffect(() => {
+    if (phase !== 'answer-cue') return
+    const timer = window.setTimeout(() => {
+      answerStartedAt.current = performance.now()
+      setPhase('answering')
+    }, SEQUENCE_TIMING.answerCueMs)
+    return () => window.clearTimeout(timer)
+  }, [phase])
 
   const beginRound = (nextSpan = span) => {
-    setSpan(nextSpan); setAnswer(''); setSequence(createSequence(nextSpan)); setPhase('showing')
+    setSpan(nextSpan); setAnswer(''); setDigitIndex(0); setDigitVisible(false); setSequence(createSequence(nextSpan)); setPhase('ready-cue')
   }
 
   const start = async () => {
@@ -124,13 +158,19 @@ export function Training({ onExit }: { onExit: () => void }) {
     {warning && <p className="storage-warning" role="status">{warning}</p>}
     {phase === 'loading' && <section className="ready-panel"><p>Restoring your progress…</p></section>}
     {phase === 'ready' && <section className="ready-panel"><div className="digit-preview">5 8 2 9</div><h2>Remember, then reverse</h2><p>Watch the digits. When they disappear, enter them in reverse order. You’ll resume at span {span}.</p><button className="primary-button" onClick={start}>Start Session</button></section>}
-    {phase === 'showing' && <section className="game-panel showing"><p>Remember these digits</p><div className="digits" aria-live="polite">{sequence.join(' ')}</div><div className="progress-line" /></section>}
+    {phase === 'ready-cue' && <CalmCue label="Ready" detail="Focus on one digit at a time" />}
+    {phase === 'showing' && <section className="game-panel showing"><p>Remember the sequence</p><div className="digit-stage" aria-live="polite" aria-atomic="true"><span key={digitIndex} style={{ animationDuration: `${SEQUENCE_TIMING.fadeMs}ms`, transitionDuration: `${SEQUENCE_TIMING.fadeMs}ms` }} className={`single-digit ${digitVisible ? 'visible' : 'hidden'}`}>{sequence[digitIndex]}</span></div><p className="sequence-progress" aria-hidden="true">{digitIndex + 1} of {sequence.length}</p></section>}
+    {phase === 'answer-cue' && <CalmCue label="Your turn" detail="Enter the sequence in reverse" />}
     {phase === 'answering' && <section className="game-panel"><p>Enter the digits in reverse</p><div className="answer-display" aria-live="polite">{answer ? answer.split('').join(' ') : <span>—</span>}</div><p className="digit-count">{answer.length} of {sequence.length} digits</p><NumberKeypad onDigit={(digit) => answer.length < sequence.length && setAnswer(answer + digit)} onDelete={() => setAnswer(answer.slice(0, -1))} onSubmit={submit} submitDisabled={answer.length !== sequence.length} /></section>}
     {phase === 'saving' && <section className="feedback-panel"><p>Saving attempt…</p></section>}
-    {phase === 'feedback' && <section className="feedback-panel"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '×'}</div><h2>{lastCorrect ? 'Correct' : 'Not quite'}</h2><p>{lastCorrect ? `${successfulAttemptsAtSpan} of ${requiredSuccessesForSpan(span)} successful attempts at this span.` : <>The answer was <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>Next Round</button></section>}
+    {phase === 'feedback' && <section className="feedback-panel calm-feedback"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '—'}</div><h2>{lastCorrect ? 'Correct' : 'Next one'}</h2><p>{lastCorrect ? `${successfulAttemptsAtSpan} of ${requiredSuccessesForSpan(span)} successful attempts at this span.` : <>The reverse sequence was <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>Continue</button></section>}
     {phase === 'success-choice' && <ChoiceDialog title="Ready to increase?" body={`You completed ${requiredSuccessesForSpan(span)} successful ${requiredSuccessesForSpan(span) === 1 ? 'attempt' : 'attempts'} at span ${span}.`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
     {phase === 'miss-choice' && <ChoiceDialog title={`${MISSES_BEFORE_LEVEL_CHOICE} misses at this span`} body={`Would you like to practise at ${span} digits or move up to ${span + 1} digits?`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
   </main>
+}
+
+function CalmCue({ label, detail }: { label: string; detail: string }) {
+  return <section className="calm-cue" aria-live="polite"><p className="eyebrow">{detail}</p><h2>{label}</h2></section>
 }
 
 function ChoiceDialog({ title, body, stayLabel, increaseLabel, onStay, onIncrease }: { title: string; body: string; stayLabel: string; increaseLabel: string; onStay: () => void; onIncrease: () => void }) {

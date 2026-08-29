@@ -4,6 +4,14 @@ export const STARTING_SPAN = 3
 export const MISSES_BEFORE_LEVEL_CHOICE = 3
 export const SUCCESSES_BEFORE_LEVEL_CHOICE = 3
 
+export const SEQUENCE_TIMING = {
+  readyMs: 700,
+  digitVisibleMs: 720,
+  fadeMs: 180,
+  betweenDigitsMs: 220,
+  answerCueMs: 450,
+} as const
+
 export function requiredSuccessesForSpan(span: number) {
   return span === 4 ? 1 : SUCCESSES_BEFORE_LEVEL_CHOICE
 }
@@ -14,10 +22,6 @@ export function createSequence(span: number): number[] {
 
 export function expectedAnswer(sequence: number[]) {
   return sequence.slice().reverse().join('')
-}
-
-export function displayDuration(span: number) {
-  return Math.max(1800, span * 550)
 }
 
 export function buildSession(startedAt: number, trials: TrialResult[]): Session {

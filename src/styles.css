@@ -110,14 +110,22 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 .failure-count { flex: 0 0 auto; padding: 8px 11px; border-radius: 999px; background: #202941; color: #abb4c8; font-size: 12px; font-weight: 750; }
 .close-training { position: absolute; z-index: 2; top: calc(6px + env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); min-width: 44px; min-height: 44px; padding: 2px 10px; border: 0; background: none; color: #77829a; font-size: 34px; }
 .ready-panel, .game-panel, .feedback-panel { text-align: center; }
-.digit-preview, .digits, .answer-display { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: .12em; }
+.digit-preview, .single-digit, .answer-display { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: .12em; }
 .digit-preview { margin: 30px 0; padding: 30px 10px; border: 1px solid #2b3652; border-radius: 22px; background: #10172a; color: #a8eadc; font-size: 34px; }
 .ready-panel h2, .feedback-panel h2 { margin: 0 0 10px; font-size: 25px; }
 .ready-panel p, .feedback-panel p, .game-panel > p { margin: 0 auto 26px; color: #9ba6bd; line-height: 1.5; }
 .ready-panel .primary-button, .feedback-panel .primary-button { margin-top: 22px; }
-.digits { margin: 60px -12px; overflow-wrap: anywhere; color: #fff; font-size: clamp(42px, 13vw, 64px); }
-.progress-line { height: 3px; border-radius: 3px; background: #9ee5d7; animation: shrink 2.2s linear forwards; transform-origin: left; }
-@keyframes shrink { to { transform: scaleX(0); } }
+.digit-stage { display: grid; place-items: center; min-height: 180px; margin: 24px 0 8px; }
+.single-digit { grid-area: 1 / 1; color: #fff; font-size: clamp(72px, 23vw, 108px); line-height: 1; transition-property: opacity; transition-timing-function: ease-in-out; }
+.single-digit.visible { opacity: 1; animation-name: calm-digit-in; animation-timing-function: ease-out; animation-fill-mode: both; }
+.single-digit.hidden { opacity: 0; }
+.sequence-progress { margin: 0 !important; color: #69748b !important; font-size: 12px; letter-spacing: .06em; }
+@keyframes calm-digit-in { from { opacity: 0; } to { opacity: 1; } }
+.calm-cue { display: grid; place-content: center; min-height: 260px; text-align: center; animation: calm-appear 260ms ease-out both; }
+.calm-cue h2 { margin: 0; font-size: 36px; font-weight: 750; letter-spacing: -.025em; }
+.calm-cue .eyebrow { margin-bottom: 12px; color: #8f9ab2; }
+.calm-feedback { animation: calm-appear 260ms ease-out both; }
+@keyframes calm-appear { from { opacity: 0; } to { opacity: 1; } }
 .answer-display { display: grid; place-items: center; min-height: 92px; margin-bottom: 9px; border: 1px solid #2b3652; border-radius: 20px; background: #10172a; font-size: 38px; }
 .answer-display span { color: #47526c; }
 .digit-count { margin-bottom: 22px !important; font-size: 13px !important; }
@@ -129,7 +137,7 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 .feedback-panel { padding-top: 46px; }
 .feedback-icon, .success-mark { display: grid; place-items: center; width: 74px; height: 74px; margin: 0 auto 22px; border-radius: 50%; font-size: 40px; font-weight: 800; }
 .feedback-icon.correct, .success-mark { background: #173f3a; color: #9ee5d7; }
-.feedback-icon.incorrect { background: #48252e; color: #ffb5bd; }
+.feedback-icon.incorrect { background: #242d42; color: #aeb7cb; }
 .summary-page { text-align: center; }
 .success-mark { margin-top: 12px; }
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 34px 0 18px; text-align: left; }
@@ -145,7 +153,7 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 @media (max-height: 700px) and (max-width: 599px) {
   .training-header { margin-bottom: 22px; }
   .digit-preview { margin: 20px 0; padding: 22px 10px; }
-  .digits { margin: 38px -12px; }
+  .digit-stage { min-height: 145px; margin-top: 14px; }
   .key { height: 54px; }
   .feedback-panel { padding-top: 22px; }
 }
@@ -156,5 +164,5 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
