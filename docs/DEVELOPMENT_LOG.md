@@ -13,3 +13,4 @@
 - Added cache and IndexedDB service tests.
 - Added the persistence test suite to GitHub Actions CI before the production build.
 - Made the Pages workflow perform first-time GitHub Pages enablement automatically.
+- Added a direct live-site link to each successful Pages workflow summary.
