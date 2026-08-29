@@ -17,4 +17,5 @@
 - Updated CI and deployment to Node.js 24 with the Node 24-based checkout and setup actions.
 - Updated configure-pages and pnpm setup to their Node 24-based action releases.
 - Fixed the Pages build command so generated asset URLs include the repository base path, with a workflow regression check.
+- Prepared the interface for iPhone Safari with safe areas, dynamic viewport units, touch normalization, compact-height layouts, and mobile viewport metadata.
 - Made span four require one successful attempt and reset digit progression when a session ends.
