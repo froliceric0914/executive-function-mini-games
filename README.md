@@ -16,9 +16,9 @@ Open the local URL shown by Vite. To verify a production build, run `npm run bui
 ## Continuous integration and deployment
 
 GitHub Actions runs TypeScript and production-build checks for every pull
-request and every push to `main`. See `docs/DEPLOYMENT.md` for the recommended
-Tencent Cloud EdgeOne Pages deployment, chosen for the app's mainland-China
-mobile access requirement.
+request and every push to `main`. A separate GitHub Pages workflow publishes
+the app automatically from `main`. See `docs/DEPLOYMENT.md` for setup and
+mainland-China access notes.
 
 ## Project structure
 
