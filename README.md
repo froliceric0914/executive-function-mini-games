@@ -32,7 +32,7 @@ mainland-China access notes.
 
 ## Backward Digit Span
 
-Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. After three successful attempts at the current span, the app asks whether to stay or increase the span by one; it never raises difficulty silently.
+Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. After three successful attempts at most spans, the app asks whether to stay or increase by one; span four needs only one successful attempt. It never raises difficulty silently, and each new session restarts at three digits.
 
 ## Local data architecture
 

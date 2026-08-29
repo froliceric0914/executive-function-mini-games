@@ -15,3 +15,4 @@
 - Made the Pages workflow perform first-time GitHub Pages enablement automatically.
 - Added a direct live-site link to each successful Pages workflow summary.
 - Updated CI and deployment to Node.js 24 with the Node 24-based checkout and setup actions.
+- Made span four require one successful attempt and reset digit progression when a session ends.

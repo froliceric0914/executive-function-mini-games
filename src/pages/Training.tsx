@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NumberKeypad } from '../components/NumberKeypad'
 import type { TrialResult } from '../types/session'
 import type { GameProgress } from '../types/game'
-import { buildSession, createSequence, displayDuration, expectedAnswer, MISSES_BEFORE_LEVEL_CHOICE, SUCCESSES_BEFORE_LEVEL_CHOICE, STARTING_SPAN } from '../games/BackwardDigitSpan/logic'
+import { buildSession, createSequence, displayDuration, expectedAnswer, MISSES_BEFORE_LEVEL_CHOICE, requiredSuccessesForSpan, STARTING_SPAN } from '../games/BackwardDigitSpan/logic'
 import { gameStorageService } from '../services/gameStorageService'
 import '../styles/levelChoice.css'
 
@@ -66,6 +66,7 @@ export function Training({ onExit }: { onExit: () => void }) {
     const correct = answer === expectedAnswer(sequence)
     const responseTimeMs = performance.now() - answerStartedAt.current
     const nextStreak = correct ? successfulAttemptsAtSpan + 1 : 0
+    const requiredSuccesses = requiredSuccessesForSpan(span)
     const nextTrials = [...trials, { span, correct, responseTimeMs }]
 
     const result = await gameStorageService.saveAttempt({
@@ -87,7 +88,7 @@ export function Training({ onExit }: { onExit: () => void }) {
 
     setTrials(nextTrials); setLastCorrect(correct)
     setSuccessfulAttemptsAtSpan(nextStreak)
-    if (correct && nextStreak >= SUCCESSES_BEFORE_LEVEL_CHOICE) setPhase('success-choice')
+    if (correct && nextStreak >= requiredSuccesses) setPhase('success-choice')
     else if (!correct) {
       const nextMisses = missesAtSpan + 1
       setMissesAtSpan(nextMisses)
@@ -126,8 +127,8 @@ export function Training({ onExit }: { onExit: () => void }) {
     {phase === 'showing' && <section className="game-panel showing"><p>Remember these digits</p><div className="digits" aria-live="polite">{sequence.join(' ')}</div><div className="progress-line" /></section>}
     {phase === 'answering' && <section className="game-panel"><p>Enter the digits in reverse</p><div className="answer-display" aria-live="polite">{answer ? answer.split('').join(' ') : <span>—</span>}</div><p className="digit-count">{answer.length} of {sequence.length} digits</p><NumberKeypad onDigit={(digit) => answer.length < sequence.length && setAnswer(answer + digit)} onDelete={() => setAnswer(answer.slice(0, -1))} onSubmit={submit} submitDisabled={answer.length !== sequence.length} /></section>}
     {phase === 'saving' && <section className="feedback-panel"><p>Saving attempt…</p></section>}
-    {phase === 'feedback' && <section className="feedback-panel"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '×'}</div><h2>{lastCorrect ? 'Correct' : 'Not quite'}</h2><p>{lastCorrect ? `${successfulAttemptsAtSpan} of ${SUCCESSES_BEFORE_LEVEL_CHOICE} successful attempts at this span.` : <>The answer was <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>Next Round</button></section>}
-    {phase === 'success-choice' && <ChoiceDialog title="Ready to increase?" body={`You completed ${SUCCESSES_BEFORE_LEVEL_CHOICE} successful attempts at span ${span}.`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
+    {phase === 'feedback' && <section className="feedback-panel"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '×'}</div><h2>{lastCorrect ? 'Correct' : 'Not quite'}</h2><p>{lastCorrect ? `${successfulAttemptsAtSpan} of ${requiredSuccessesForSpan(span)} successful attempts at this span.` : <>The answer was <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>Next Round</button></section>}
+    {phase === 'success-choice' && <ChoiceDialog title="Ready to increase?" body={`You completed ${requiredSuccessesForSpan(span)} successful ${requiredSuccessesForSpan(span) === 1 ? 'attempt' : 'attempts'} at span ${span}.`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
     {phase === 'miss-choice' && <ChoiceDialog title={`${MISSES_BEFORE_LEVEL_CHOICE} misses at this span`} body={`Would you like to practise at ${span} digits or move up to ${span + 1} digits?`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
   </main>
 }

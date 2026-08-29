@@ -16,6 +16,7 @@ function newId() {
 async function deriveProgress(game: GameId): Promise<GameProgress> {
   const latestSession = await sessionRepository.getLatest(game)
   if (!latestSession) return { currentSpanLength: DEFAULT_SPAN, currentSuccessStreak: 0 }
+  if (latestSession.endedAt) return { currentSpanLength: DEFAULT_SPAN, currentSuccessStreak: 0, lastPlayedAt: latestSession.endedAt.toISOString() }
   const currentSpanLength = latestSession.endingSpan ?? latestSession.startingSpan
   const attempts = await attemptRepository.getBySession(latestSession.id)
   const lastAtSpan = [...attempts].reverse().find((attempt) => attempt.spanLength === currentSpanLength)
@@ -131,9 +132,13 @@ export const gameStorageService = {
   },
 
   async endSession(sessionId: string, summary: Session, endingSpan: number) {
-    await sessionRepository.update(sessionId, { endedAt: new Date(), endingSpan, summary })
-    gameProgressCache.clear('backward-digit-span')
-    await this.rebuildCache('backward-digit-span')
+    const endedAt = new Date()
+    await sessionRepository.update(sessionId, { endedAt, endingSpan, summary })
+    gameProgressCache.setProgress('backward-digit-span', {
+      currentSpanLength: DEFAULT_SPAN,
+      currentSuccessStreak: 0,
+      lastPlayedAt: endedAt.toISOString(),
+    })
   },
 
   async markDifficultyChanged(attemptId: number) {

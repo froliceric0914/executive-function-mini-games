@@ -53,4 +53,15 @@ describe('game storage service', () => {
     const attempts = await gameStorageService.getAttempts('backward-digit-span')
     expect(attempts[0]).toMatchObject({ sequence: [4, 1, 9, 2], userAnswer: [2, 9, 1, 4], spanLength: 4 })
   })
+
+  it('restarts digit progression after a session ends', async () => {
+    const session = await gameStorageService.startSession('backward-digit-span', 5)
+    await gameStorageService.endSession(session.id, {
+      id: session.id, completedAt: new Date().toISOString(), totalTrials: 0, correctTrials: 0,
+      incorrectTrials: 0, accuracy: 0, maxSuccessfulSpan: 0, averageResponseTimeMs: 0, durationMs: 100,
+    }, 5)
+    gameProgressCache.clear('backward-digit-span')
+
+    expect(await gameStorageService.getProgress('backward-digit-span')).toMatchObject({ currentSpanLength: 3, currentSuccessStreak: 0 })
+  })
 })
