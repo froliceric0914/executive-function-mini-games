@@ -1,0 +1,16 @@
+import type { Session } from '../types/session'
+
+const STORAGE_KEY = 'executive-function-mini-games:sessions'
+
+export function getSessions(): Session[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved ? (JSON.parse(saved) as Session[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveSession(session: Session) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([session, ...getSessions()]))
+}
