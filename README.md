@@ -26,12 +26,22 @@ mainland-China access notes.
 - `src/games/BackwardDigitSpan/` — core game rules and session calculations
 - `src/pages/` — Home, Training, and History screens
 - `src/types/` — shared TypeScript data shapes
-- `src/utils/` — formatting and local storage helpers
+- `src/db/` — Dexie database and durable history repositories
+- `src/cache/` — disposable, versioned progress cache
+- `src/services/` — storage API used by the UI
 
 ## Backward Digit Span
 
-Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. A correct answer increases the next span by one; an incorrect answer repeats the same span. The session ends after three incorrect trials.
+Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. After three successful attempts at the current span, the app asks whether to stay or increase the span by one; it never raises difficulty silently.
 
-## Saved data
+## Local data architecture
 
-Completed sessions are saved only in the browser's `localStorage`. Each record includes completion date/time, total/correct/incorrect trials, accuracy, maximum successful span, average response time, and session duration. Clearing browser site data removes the history.
+The project follows one rule: **database for truth, cache for speed, React state for the current interaction**.
+
+- React state holds temporary interaction data such as the visible sequence, answer input, phase, and timers.
+- `localStorage` holds only a small, versioned cache of the current span, success streak, latest session, and optional derived statistics. It is disposable and can be rebuilt.
+- IndexedDB, accessed through Dexie, is the durable source of truth for raw attempts and training sessions. History and statistics are read from these structured records.
+
+Guest users use the same IndexedDB history store; login status does not change the local persistence model. Clearing only the app cache does not delete training history, but clearing browser/site data may delete a guest's IndexedDB history. A future login feature may associate and optionally synchronize this local history with a cloud account.
+
+Older session summaries stored by previous versions in `localStorage` are migrated into IndexedDB when the app starts. If migration fails, the original data is left intact.
