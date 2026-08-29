@@ -39,7 +39,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build site
-        run: pnpm build -- --base=/executive-function-mini-games/
+        run: |
+          pnpm typecheck
+          pnpm exec vite build --base=/executive-function-mini-games/
+
+      - name: Verify GitHub Pages asset paths
+        run: grep -q 'src="/executive-function-mini-games/assets/' dist/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
