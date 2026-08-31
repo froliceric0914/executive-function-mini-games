@@ -20,3 +20,4 @@
 - Prepared the interface for iPhone Safari with safe areas, dynamic viewport units, touch normalization, compact-height layouts, and mobile viewport metadata.
 - Restored the original full-sequence presentation so all digits appear together before answer entry.
 - Set training to begin at three digits, requiring one success at spans three and four, then two successes at even spans and three at odd spans from five digits onward.
+- Added the mini-game library and a playable Color–Word Focus prototype as the next inhibition-control game.

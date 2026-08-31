@@ -58,6 +58,20 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 .eyebrow { margin: 0 0 10px; color: #8fdccc; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .page h1 { margin: 0; font-size: clamp(34px, 10vw, 48px); line-height: 1.06; letter-spacing: -.045em; }
 .intro { max-width: 360px; margin: 20px auto 30px; color: #aeb7cb; font-size: 17px; line-height: 1.55; }
+.game-library { margin-top: 34px; text-align: left; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.section-heading h2 { margin: 0; font-size: 24px; }
+.section-heading > span { color: #77829a; font-size: 12px; }
+.game-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 74px; margin-bottom: 10px; padding: 13px; border: 1px solid #2a3652; border-radius: 19px; background: rgba(18, 26, 47, .86); color: #eef2f9; text-align: left; }
+button.game-option { cursor: pointer; }
+.game-option > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 4px; }
+.game-option small { color: #8f9ab2; font-size: 12px; }
+.game-symbol { display: grid; flex: 0 0 45px; place-items: center; width: 45px; height: 45px; border-radius: 14px; background: #203248; color: #a7eadc; font-size: 22px; font-weight: 850; }
+.game-option.prototype .game-symbol { background: #352f52; color: #d6c4f4; }
+.game-arrow { flex: 0 0 auto !important; color: #77829a; font-size: 28px; }
+.planned-games { opacity: .66; }
+.game-option.planned { min-height: 66px; }
+.game-option.planned .game-symbol { flex-basis: 38px; width: 38px; height: 38px; background: #20283b; color: #717d96; }
 
 .primary-button {
   width: 100%;
@@ -132,6 +146,13 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
 .feedback-icon, .success-mark { display: grid; place-items: center; width: 74px; height: 74px; margin: 0 auto 22px; border-radius: 50%; font-size: 40px; font-weight: 800; }
 .feedback-icon.correct, .success-mark { background: #173f3a; color: #9ee5d7; }
 .feedback-icon.incorrect { background: #242d42; color: #aeb7cb; }
+.stroop-example { display: grid; place-items: center; min-height: 126px; margin: 24px 0; border: 1px solid #2b3652; border-radius: 22px; background: #10172a; font-size: 50px; font-weight: 900; letter-spacing: .08em; }
+.stroop-trial { padding-top: 12px; }
+.stroop-word { display: grid; place-items: center; min-height: 180px; margin: 12px 0 24px; font-size: clamp(52px, 17vw, 82px); font-weight: 900; letter-spacing: .06em; }
+.stroop-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.stroop-choices button { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 12px 15px; border: 1px solid #2a3653; border-radius: 17px; background: #182139; color: #f8f9fc; font-weight: 750; }
+.color-dot { width: 18px; height: 18px; border-radius: 50%; }
+.text-button { width: 100%; min-height: 48px; margin-top: 10px; border: 0; background: none; color: #8fdccc; }
 .summary-page { text-align: center; }
 .success-mark { margin-top: 12px; }
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 34px 0 18px; text-align: left; }

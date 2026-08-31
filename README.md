@@ -32,7 +32,15 @@ mainland-China access notes.
 
 ## Backward Digit Span
 
-Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. After three successful attempts at most spans, the app asks whether to stay or increase by one; span four needs only one successful attempt. It never raises difficulty silently, and each new session restarts at three digits.
+Each round briefly shows a random sequence, then hides it. Enter the sequence in reverse using the on-screen keypad. Sessions start at three digits. Spans three and four require one successful attempt; from span five, odd spans require three and even spans require two. The app never raises difficulty silently.
+
+## Mini-game roadmap
+
+- Backward Digit Span — available
+- Color–Word Focus — playable prototype; persistence is still in development
+- Go/No-Go — planned
+- Task Switching — planned
+- Spatial N-back — planned
 
 ## Local data architecture
 
