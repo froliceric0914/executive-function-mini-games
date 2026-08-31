@@ -91,6 +91,9 @@ export default {
       instructions: 'Ignore what the word says. Choose the color the word is displayed in. Take a moment—accuracy matters more than speed.',
       start: 'Start Prototype',
       chooseInk: 'Choose the ink color',
+      timeRemaining: 'Time remaining',
+      timeUpTitle: 'Time is up',
+      timeUpBody: 'The ink color was {{color}}. Continue when you’re ready.',
       colors: {
         red: 'Red',
         blue: 'Blue',

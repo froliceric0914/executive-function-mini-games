@@ -91,6 +91,9 @@ export default {
       instructions: '忽略文字本身的含义，选择文字显示的颜色。准确比速度更重要。',
       start: '开始原型练习',
       chooseInk: '选择文字颜色',
+      timeRemaining: '剩余时间',
+      timeUpTitle: '时间到了',
+      timeUpBody: '文字颜色是{{color}}。准备好后继续。',
       colors: {
         red: '红色',
         blue: '蓝色',

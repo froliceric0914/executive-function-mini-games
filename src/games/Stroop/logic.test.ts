@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createStroopTrial, isStroopAnswerCorrect, STROOP_COLORS } from './logic'
+import { createStroopTrial, isStroopAnswerCorrect, STROOP_COLORS, STROOP_TRIAL_MS } from './logic'
 
 describe('Color–Word Focus', () => {
+  it('has a positive configurable trial time limit', () => {
+    expect(STROOP_TRIAL_MS).toBeGreaterThan(0)
+  })
+
   it('creates an incongruent color-word trial', () => {
     const trial = createStroopTrial(() => 0)
     expect(trial.word).not.toBe(trial.ink)
