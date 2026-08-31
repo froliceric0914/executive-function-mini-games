@@ -1,8 +1,8 @@
 export const STROOP_COLORS = [
-  { id: 'red', label: 'Red', value: '#ef7d83' },
-  { id: 'blue', label: 'Blue', value: '#78a8ed' },
-  { id: 'green', label: 'Green', value: '#70c9a2' },
-  { id: 'yellow', label: 'Yellow', value: '#e8c96f' },
+  { id: 'red', value: '#ef7d83' },
+  { id: 'blue', value: '#78a8ed' },
+  { id: 'green', value: '#70c9a2' },
+  { id: 'yellow', value: '#e8c96f' },
 ] as const
 
 export type StroopColorId = typeof STROOP_COLORS[number]['id']

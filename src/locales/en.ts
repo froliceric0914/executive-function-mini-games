@@ -91,6 +91,12 @@ export default {
       instructions: 'Ignore what the word says. Choose the color the word is displayed in. Take a moment—accuracy matters more than speed.',
       start: 'Start Prototype',
       chooseInk: 'Choose the ink color',
+      colors: {
+        red: 'Red',
+        blue: 'Blue',
+        green: 'Green',
+        yellow: 'Yellow',
+      },
       stimulusLabel: '{{word}}, shown in a colored ink',
       correctTitle: 'That’s it',
       nextTitle: 'Next one',

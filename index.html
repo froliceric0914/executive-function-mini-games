@@ -7,6 +7,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Executive Function Mini Games</title>
+    <script>
+      (() => {
+        let language
+        try {
+          language = localStorage.getItem('language')
+        } catch {
+          // Browser language remains available when storage is blocked.
+        }
+        if (language !== 'en' && language !== 'zh-CN') {
+          language = navigator.language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en'
+        }
+        document.documentElement.lang = language
+        document.title = language === 'zh-CN' ? '执行功能小游戏' : 'Executive Function Mini Games'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
