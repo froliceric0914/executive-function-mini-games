@@ -47,6 +47,10 @@ button:focus-visible { outline: 3px solid rgba(167, 234, 220, .72); outline-offs
   background: linear-gradient(180deg, rgba(18, 26, 48, .75), rgba(9, 13, 24, .25));
 }
 
+.language-switcher { position: absolute; z-index: 4; top: calc(6px + env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); display: flex; align-items: center; gap: 5px; padding: 2px 7px; border: 1px solid #27324e; border-radius: 999px; background: rgba(9, 13, 24, .82); color: #68738c; font-size: 11px; }
+.language-switcher button { min-height: 22px; padding: 0 3px; border: 0; background: none; color: #77829a; cursor: pointer; }
+.language-switcher button.active { color: #a7eadc; font-weight: 800; }
+
 .page {
   min-height: 100vh;
   min-height: 100svh;

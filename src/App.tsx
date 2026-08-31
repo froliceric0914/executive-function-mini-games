@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { Home } from './pages/Home'
 import { Training } from './pages/Training'
 import { StroopTraining } from './pages/StroopTraining'
@@ -9,6 +11,7 @@ import type { Session } from './types/session'
 type Page = 'home' | 'digit-span' | 'stroop' | 'history'
 
 export default function App() {
+  const { t } = useTranslation()
   const [page, setPage] = useState<Page>('home')
   const [sessions, setSessions] = useState<Session[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,10 +26,11 @@ export default function App() {
   useEffect(() => { void loadSessions().catch(() => undefined) }, [loadSessions])
   const exitTraining = async () => { try { await loadSessions() } finally { setPage('home') } }
   return <div className="app-shell">
+    <LanguageSwitcher />
     {page === 'home' && <Home latest={sessions[0]} onStartDigitSpan={() => setPage('digit-span')} onStartStroop={() => setPage('stroop')} />}
     {page === 'digit-span' && <Training onExit={exitTraining} />}
     {page === 'stroop' && <StroopTraining onExit={() => setPage('home')} />}
     {page === 'history' && <History sessions={sessions} loading={loading} />}
-    {!['digit-span', 'stroop'].includes(page) && <nav className="bottom-nav" aria-label="Main navigation"><button className={page === 'home' ? 'active' : ''} onClick={() => setPage('home')}><span>⌂</span>Home</button><button className={page === 'history' ? 'active' : ''} onClick={() => setPage('history')}><span>◷</span>History</button></nav>}
+    {!['digit-span', 'stroop'].includes(page) && <nav className="bottom-nav" aria-label={t('common.navigation')}><button className={page === 'home' ? 'active' : ''} onClick={() => setPage('home')}><span>⌂</span>{t('common.home')}</button><button className={page === 'history' ? 'active' : ''} onClick={() => setPage('history')}><span>◷</span>{t('common.history')}</button></nav>}
   </div>
 }

@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { colorDetails, createStroopTrial, isStroopAnswerCorrect, STROOP_COLORS, STROOP_ROUNDS, type StroopColorId } from '../games/Stroop/logic'
 
 type Phase = 'ready' | 'playing' | 'feedback' | 'complete'
 
 export function StroopTraining({ onExit }: { onExit: () => void }) {
+  const { t } = useTranslation()
   const [phase, setPhase] = useState<Phase>('ready')
   const [trial, setTrial] = useState(createStroopTrial)
   const [round, setRound] = useState(1)
@@ -37,15 +39,15 @@ export function StroopTraining({ onExit }: { onExit: () => void }) {
   const finalScore = correctCount
 
   return <main className="page training-page stroop-page">
-    <button className="close-training" onClick={onExit} aria-label="Exit Color–Word Focus">×</button>
-    <div className="training-header"><div><p className="eyebrow">Inhibition control</p><h1>Color–Word Focus</h1></div>{phase !== 'ready' && <span className="failure-count">{Math.min(round, STROOP_ROUNDS)}/{STROOP_ROUNDS}</span>}</div>
+    <button className="close-training" onClick={onExit} aria-label={t('games.stroop.exit')}>×</button>
+    <div className="training-header"><div><p className="eyebrow">{t('games.stroop.skill')}</p><h1>{t('games.stroop.title')}</h1></div>{phase !== 'ready' && <span className="failure-count">{Math.min(round, STROOP_ROUNDS)}/{STROOP_ROUNDS}</span>}</div>
 
-    {phase === 'ready' && <section className="ready-panel stroop-ready"><div className="stroop-example"><span style={{ color: colorDetails('blue').value }}>RED</span></div><h2>Name the ink color</h2><p>Ignore what the word says. Choose the color the word is displayed in. Take a moment—accuracy matters more than speed.</p><button className="primary-button" onClick={start}>Start Prototype</button></section>}
+    {phase === 'ready' && <section className="ready-panel stroop-ready"><div className="stroop-example"><span style={{ color: colorDetails('blue').value }}>RED</span></div><h2>{t('games.stroop.nameInk')}</h2><p>{t('games.stroop.instructions')}</p><button className="primary-button" onClick={start}>{t('games.stroop.start')}</button></section>}
 
-    {phase === 'playing' && <section className="game-panel stroop-trial"><p>Choose the ink color</p><div className="stroop-word" style={{ color: colorDetails(trial.ink).value }} aria-label={`${colorDetails(trial.word).label}, shown in a colored ink`}>{colorDetails(trial.word).label.toUpperCase()}</div><div className="stroop-choices">{STROOP_COLORS.map((color) => <button key={color.id} onClick={() => answer(color.id)}><span className="color-dot" style={{ background: color.value }} />{color.label}</button>)}</div></section>}
+    {phase === 'playing' && <section className="game-panel stroop-trial"><p>{t('games.stroop.chooseInk')}</p><div className="stroop-word" style={{ color: colorDetails(trial.ink).value }} aria-label={t('games.stroop.stimulusLabel', { word: colorDetails(trial.word).label })}>{colorDetails(trial.word).label.toUpperCase()}</div><div className="stroop-choices">{STROOP_COLORS.map((color) => <button key={color.id} onClick={() => answer(color.id)}><span className="color-dot" style={{ background: color.value }} />{color.label}</button>)}</div></section>}
 
-    {phase === 'feedback' && <section className="feedback-panel calm-feedback"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '—'}</div><h2>{lastCorrect ? 'That’s it' : 'Next one'}</h2><p>{lastCorrect ? 'You selected the ink color.' : <>The ink color was <strong>{colorDetails(trial.ink).label}</strong>.</>}</p><button className="primary-button" onClick={continueGame}>{round === STROOP_ROUNDS ? 'See Summary' : 'Continue'}</button></section>}
+    {phase === 'feedback' && <section className="feedback-panel calm-feedback"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '—'}</div><h2>{lastCorrect ? t('games.stroop.correctTitle') : t('games.stroop.nextTitle')}</h2><p>{lastCorrect ? t('games.stroop.correctBody') : t('games.stroop.inkWas', { color: colorDetails(trial.ink).label })}</p><button className="primary-button" onClick={continueGame}>{round === STROOP_ROUNDS ? t('games.stroop.seeSummary') : t('common.continue')}</button></section>}
 
-    {phase === 'complete' && <section className="feedback-panel calm-feedback"><div className="success-mark">{finalScore}</div><h2>Prototype complete</h2><p>You identified {finalScore} of {STROOP_ROUNDS} ink colors. Results are not saved yet while this game is in development.</p><button className="primary-button" onClick={start}>Try Again</button><button className="text-button" onClick={onExit}>Back to games</button></section>}
+    {phase === 'complete' && <section className="feedback-panel calm-feedback"><div className="success-mark">{finalScore}</div><h2>{t('games.stroop.completeTitle')}</h2><p>{t('games.stroop.completeBody', { score: finalScore, total: STROOP_ROUNDS })}</p><button className="primary-button" onClick={start}>{t('common.tryAgain')}</button><button className="text-button" onClick={onExit}>{t('games.stroop.backToGames')}</button></section>}
   </main>
 }

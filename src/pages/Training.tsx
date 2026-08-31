@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NumberKeypad } from '../components/NumberKeypad'
 import type { TrialResult } from '../types/session'
 import type { GameProgress } from '../types/game'
@@ -10,6 +11,7 @@ const GAME = 'backward-digit-span' as const
 type Phase = 'loading' | 'ready' | 'showing' | 'answering' | 'saving' | 'feedback' | 'success-choice' | 'miss-choice'
 
 export function Training({ onExit }: { onExit: () => void }) {
+  const { t } = useTranslation()
   const [phase, setPhase] = useState<Phase>('loading')
   const [span, setSpan] = useState(STARTING_SPAN)
   const [sequence, setSequence] = useState<number[]>([])
@@ -30,7 +32,7 @@ export function Training({ onExit }: { onExit: () => void }) {
       setSuccessfulAttemptsAtSpan(progress.currentSuccessStreak)
       setPhase('ready')
     }).catch(() => {
-      setWarning('Saved progress could not be loaded. You can still try again.')
+      setWarning('games.digitSpan.loadError')
       setPhase('ready')
     })
   }, [])
@@ -55,7 +57,7 @@ export function Training({ onExit }: { onExit: () => void }) {
       startedAt.current = Date.now()
       setTrials([]); setMissesAtSpan(0); setWarning(undefined); beginRound(span)
     } catch {
-      setWarning('Training could not be started because local history storage is unavailable. Please try again.')
+      setWarning('games.digitSpan.startError')
     }
   }
 
@@ -83,10 +85,10 @@ export function Training({ onExit }: { onExit: () => void }) {
         await gameStorageService.updateProgress(GAME, progressFor(span, nextStreak))
         setWarning(undefined)
       } catch {
-        setWarning('The attempt was saved, but progress restoration could not be refreshed.')
+        setWarning('games.digitSpan.progressRefreshError')
       }
     } else {
-      setWarning('This attempt has not been saved yet. It is queued for another save attempt during this session.')
+      setWarning('games.digitSpan.queuedSave')
     }
 
     setTrials(nextTrials); setLastCorrect(correct)
@@ -101,10 +103,10 @@ export function Training({ onExit }: { onExit: () => void }) {
 
   const chooseSpan = async (nextSpan: number, changed: boolean) => {
     if (changed && lastAttemptId.current) {
-      try { await gameStorageService.markDifficultyChanged(lastAttemptId.current) } catch { setWarning('The difficulty changed, but that detail could not be saved.') }
+      try { await gameStorageService.markDifficultyChanged(lastAttemptId.current) } catch { setWarning('games.digitSpan.difficultySaveError') }
     }
     setSuccessfulAttemptsAtSpan(0); setMissesAtSpan(0)
-    try { await gameStorageService.updateProgress(GAME, progressFor(nextSpan, 0)) } catch { setWarning('Progress changed, but the quick-restore cache could not be refreshed.') }
+    try { await gameStorageService.updateProgress(GAME, progressFor(nextSpan, 0)) } catch { setWarning('games.digitSpan.progressChangeError') }
     beginRound(nextSpan)
   }
 
@@ -114,7 +116,7 @@ export function Training({ onExit }: { onExit: () => void }) {
         await gameStorageService.retryUnsavedAttempts()
         await gameStorageService.endSession(sessionId.current, buildSession(startedAt.current, trials), span)
       } catch {
-        setWarning('Some training data could not be saved. Please try exiting again.')
+        setWarning('games.digitSpan.exitSaveError')
         return
       }
     }
@@ -124,20 +126,20 @@ export function Training({ onExit }: { onExit: () => void }) {
   const isMemoryPhase = phase === 'showing'
 
   return <main className="page training-page">
-    <button className="close-training" onClick={exit} aria-label="Exit training">×</button>
-    <div className="training-header"><div><p className="eyebrow">Backward Digit Span</p><h1>{phase === 'ready' || phase === 'loading' ? 'Ready to focus?' : `Span ${span}`}</h1></div>{!['ready', 'loading'].includes(phase) && !isMemoryPhase && <span className="failure-count">Misses {missesAtSpan}/{MISSES_BEFORE_LEVEL_CHOICE}</span>}</div>
-    {warning && <p className="storage-warning" role="status">{warning}</p>}
-    {phase === 'loading' && <section className="ready-panel"><p>Restoring your progress…</p></section>}
-    {phase === 'ready' && <section className="ready-panel"><div className="digit-preview">5 8 2 9</div><h2>Remember, then reverse</h2><p>Watch the digits. When they disappear, enter them in reverse order. You’ll resume at span {span}.</p><button className="primary-button" onClick={start}>Start Session</button></section>}
-    {phase === 'showing' && <section className="game-panel showing"><p>Remember these digits</p><div className="digits" aria-live="polite">{sequence.join(' ')}</div><div className="progress-line" style={{ animationDuration: `${displayDuration(span)}ms` }} /></section>}
-    {phase === 'answering' && <section className="game-panel"><p>Enter the digits in reverse</p><div className="answer-display" aria-live="polite">{answer ? answer.split('').join(' ') : <span>—</span>}</div><p className="digit-count">{answer.length} of {sequence.length} digits</p><NumberKeypad onDigit={(digit) => answer.length < sequence.length && setAnswer(answer + digit)} onDelete={() => setAnswer(answer.slice(0, -1))} onSubmit={submit} submitDisabled={answer.length !== sequence.length} /></section>}
-    {phase === 'saving' && <section className="feedback-panel"><p>Saving attempt…</p></section>}
-    {phase === 'feedback' && <section className="feedback-panel calm-feedback"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '—'}</div><h2>{lastCorrect ? 'Correct' : 'Next one'}</h2><p>{lastCorrect ? `${successfulAttemptsAtSpan} of ${requiredSuccessesForSpan(span)} successful attempts at this span.` : <>The reverse sequence was <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>Continue</button></section>}
-    {phase === 'success-choice' && <ChoiceDialog title="Ready to increase?" body={`You completed ${requiredSuccessesForSpan(span)} successful ${requiredSuccessesForSpan(span) === 1 ? 'attempt' : 'attempts'} at span ${span}.`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
-    {phase === 'miss-choice' && <ChoiceDialog title={`${MISSES_BEFORE_LEVEL_CHOICE} misses at this span`} body={`Would you like to practise at ${span} digits or move up to ${span + 1} digits?`} stayLabel={`Stay at ${span}`} increaseLabel={`Increase to ${span + 1}`} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
+    <button className="close-training" onClick={exit} aria-label={t('games.digitSpan.exit')}>×</button>
+    <div className="training-header"><div><p className="eyebrow">{t('games.digitSpan.title')}</p><h1>{phase === 'ready' || phase === 'loading' ? t('games.digitSpan.readyTitle') : t('games.digitSpan.span', { span })}</h1></div>{!['ready', 'loading'].includes(phase) && !isMemoryPhase && <span className="failure-count">{t('games.digitSpan.misses', { count: missesAtSpan, total: MISSES_BEFORE_LEVEL_CHOICE })}</span>}</div>
+    {warning && <p className="storage-warning" role="status">{t(warning)}</p>}
+    {phase === 'loading' && <section className="ready-panel"><p>{t('games.digitSpan.restoring')}</p></section>}
+    {phase === 'ready' && <section className="ready-panel"><div className="digit-preview">5 8 2 9</div><h2>{t('games.digitSpan.rememberReverse')}</h2><p>{t('games.digitSpan.instructions', { span })}</p><button className="primary-button" onClick={start}>{t('games.digitSpan.startSession')}</button></section>}
+    {phase === 'showing' && <section className="game-panel showing"><p>{t('games.digitSpan.rememberDigits')}</p><div className="digits" aria-live="polite">{sequence.join(' ')}</div><div className="progress-line" style={{ animationDuration: `${displayDuration(span)}ms` }} /></section>}
+    {phase === 'answering' && <section className="game-panel"><p>{t('games.digitSpan.enterReverse')}</p><div className="answer-display" aria-live="polite">{answer ? answer.split('').join(' ') : <span>—</span>}</div><p className="digit-count">{t('games.digitSpan.digitCount', { count: answer.length, total: sequence.length })}</p><NumberKeypad onDigit={(digit) => answer.length < sequence.length && setAnswer(answer + digit)} onDelete={() => setAnswer(answer.slice(0, -1))} onSubmit={submit} submitDisabled={answer.length !== sequence.length} /></section>}
+    {phase === 'saving' && <section className="feedback-panel"><p>{t('games.digitSpan.saving')}</p></section>}
+    {phase === 'feedback' && <section className="feedback-panel calm-feedback"><div className={lastCorrect ? 'feedback-icon correct' : 'feedback-icon incorrect'}>{lastCorrect ? '✓' : '—'}</div><h2>{lastCorrect ? t('games.digitSpan.correct') : t('games.digitSpan.nextOne')}</h2><p>{lastCorrect ? t('games.digitSpan.successProgress', { count: successfulAttemptsAtSpan, total: requiredSuccessesForSpan(span) }) : <>{t('games.digitSpan.reverseWas')} <strong>{expectedAnswer(sequence).split('').join(' ')}</strong></>}</p><button className="primary-button" onClick={() => beginRound(span)}>{t('common.continue')}</button></section>}
+    {phase === 'success-choice' && <ChoiceDialog eyebrow={t('games.digitSpan.chooseChallenge')} title={t('games.digitSpan.readyIncrease')} body={t('games.digitSpan.completedAttempts', { count: requiredSuccessesForSpan(span), span })} stayLabel={t('games.digitSpan.stay', { span })} increaseLabel={t('games.digitSpan.increase', { span: span + 1 })} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
+    {phase === 'miss-choice' && <ChoiceDialog eyebrow={t('games.digitSpan.chooseChallenge')} title={t('games.digitSpan.missesTitle', { count: MISSES_BEFORE_LEVEL_CHOICE })} body={t('games.digitSpan.missesChoice', { span, nextSpan: span + 1 })} stayLabel={t('games.digitSpan.stay', { span })} increaseLabel={t('games.digitSpan.increase', { span: span + 1 })} onStay={() => chooseSpan(span, false)} onIncrease={() => chooseSpan(span + 1, true)} />}
   </main>
 }
 
-function ChoiceDialog({ title, body, stayLabel, increaseLabel, onStay, onIncrease }: { title: string; body: string; stayLabel: string; increaseLabel: string; onStay: () => void; onIncrease: () => void }) {
-  return <div className="level-choice-backdrop"><section className="level-choice" role="dialog" aria-modal="true" aria-labelledby="level-choice-title"><p className="eyebrow">Choose your challenge</p><h2 id="level-choice-title">{title}</h2><p>{body}</p><div className="level-choice-actions"><button className="secondary-button" onClick={onStay}>{stayLabel}</button><button className="primary-button" onClick={onIncrease}>{increaseLabel}</button></div></section></div>
+function ChoiceDialog({ eyebrow, title, body, stayLabel, increaseLabel, onStay, onIncrease }: { eyebrow: string; title: string; body: string; stayLabel: string; increaseLabel: string; onStay: () => void; onIncrease: () => void }) {
+  return <div className="level-choice-backdrop"><section className="level-choice" role="dialog" aria-modal="true" aria-labelledby="level-choice-title"><p className="eyebrow">{eyebrow}</p><h2 id="level-choice-title">{title}</h2><p>{body}</p><div className="level-choice-actions"><button className="secondary-button" onClick={onStay}>{stayLabel}</button><button className="primary-button" onClick={onIncrease}>{increaseLabel}</button></div></section></div>
 }
