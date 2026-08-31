@@ -2,6 +2,8 @@
 
 A small, mobile-first React app for personal cognitive training and performance tracking. This project is not a medical or diagnostic tool.
 
+Live link: https://froliceric0914.github.io/executive-function-mini-games/
+
 ## Run locally
 
 Use Node.js 16.13 or newer, then:
